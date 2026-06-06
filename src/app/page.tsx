@@ -145,12 +145,28 @@ export default function Home() {
             ))}
           </div>
           <Link href="/cadastro"
-            className="block w-full bg-white text-emerald-700 font-black text-lg py-4 rounded-2xl hover:bg-emerald-50 transition-colors">
+            className="block w-full bg-white text-emerald-700 font-black text-lg py-4 rounded-2xl hover:bg-emerald-50 transition-colors mb-3">
             Começar Agora — Grátis por 7 Dias
+          </Link>
+          <Link href="/planos"
+            className="block w-full bg-transparent border-2 border-white text-white font-bold text-base py-3 rounded-2xl hover:bg-white/10 transition-colors">
+            Ver planos e assinar →
           </Link>
         </div>
         <p className="text-gray-400 text-xs">©2025 ASBento · Corpo Novo em 21 Dias. Todos os direitos reservados.</p>
       </section>
+
+      {/* Banner fixo no rodapé (mobile) */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-emerald-600 text-white px-4 py-3 flex items-center justify-between shadow-2xl md:hidden">
+        <div>
+          <p className="font-black text-sm">7 dias grátis ✨</p>
+          <p className="text-emerald-100 text-xs">R$29,90/mês após o trial</p>
+        </div>
+        <Link href="/cadastro"
+          className="bg-white text-emerald-700 font-black text-sm px-5 py-2 rounded-full whitespace-nowrap">
+          Começar Grátis
+        </Link>
+      </div>
     </main>
   )
 }
