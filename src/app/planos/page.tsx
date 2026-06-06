@@ -1,8 +1,8 @@
 'use client'
 import { CheckCircle, Star, Zap } from 'lucide-react'
 
-const KIWIFY_MENSAL = 'https://kiwify.app/ynF6s1O'
-const KIWIFY_ANUAL = 'https://kiwify.app/ynF6s1O' // substitua pelo link do plano anual
+const KIWIFY_MENSAL = 'https://pay.kiwify.com.br/iamPPSK'
+const KIWIFY_ANUAL = 'https://pay.kiwify.com.br/iamPPSK'
 
 const beneficios = [
   'Acompanhamento diário de peso e medidas',
