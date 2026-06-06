@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "br.com.asbento.corponovo",
+    "sha256_cert_fingerprints": ["CC:EF:18:C0:EF:23:91:5E:68:A5:65:9F:A3:F8:2B:B9:F0:A2:E9:56:1E:83:7F:77:FF:D1:D5:BF:1A:59:63:58"]
+  }
+}]
