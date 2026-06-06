@@ -1,4 +1,5 @@
 {
+  "id": "br.com.asbento.corponovo",
   "name": "Corpo Novo em 21 Dias",
   "short_name": "Corpo Novo",
   "description": "Emagrecimento inteligente em 21 dias. Sem academia, sem dieta restritiva. Acompanhamento diário de peso, cardápios personalizados e método comprovado.",
@@ -16,7 +17,13 @@
     { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [
-    { "src": "/screenshot-mobile.png", "sizes": "390x844", "type": "image/png", "form_factor": "narrow" }
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tela inicial do Corpo Novo em 21 Dias"
+    }
   ],
   "shortcuts": [
     {
