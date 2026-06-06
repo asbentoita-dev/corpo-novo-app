@@ -1,13 +1,37 @@
 {
   "name": "Corpo Novo em 21 Dias",
   "short_name": "Corpo Novo",
-  "description": "Emagrecimento inteligente sem sofrimento",
+  "description": "Emagrecimento inteligente em 21 dias. Sem academia, sem dieta restritiva. Acompanhamento diário de peso, cardápios personalizados e método comprovado.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#10b981",
+  "lang": "pt-BR",
+  "categories": ["health", "fitness", "lifestyle"],
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "/screenshot-mobile.png", "sizes": "390x844", "type": "image/png", "form_factor": "narrow" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Abre seu painel de acompanhamento",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Planos",
+      "short_name": "Planos",
+      "description": "Ver planos de assinatura",
+      "url": "/planos",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
