@@ -3,13 +3,15 @@ import { stripe } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 
-// Cliente Supabase com service_role para escrever sem RLS
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export async function POST(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin()
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')!
 
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
         plano: sub.items.data[0].price.recurring?.interval === 'year' ? 'anual' : 'mensal',
         status: sub.status,
         trial_fim: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
-        proximo_pagamento: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
+        proximo_pagamento: (sub as unknown as { current_period_end?: number }).current_period_end ? new Date(((sub as unknown as { current_period_end: number }).current_period_end) * 1000).toISOString() : null,
         atualizado_em: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       break
@@ -47,7 +49,7 @@ export async function POST(req: NextRequest) {
         status: subscription.status,
         plano: subscription.items.data[0].price.recurring?.interval === 'year' ? 'anual' : 'mensal',
         trial_fim: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
-        proximo_pagamento: subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : null,
+        proximo_pagamento: (subscription as unknown as { current_period_end?: number }).current_period_end ? new Date(((subscription as unknown as { current_period_end: number }).current_period_end) * 1000).toISOString() : null,
         atualizado_em: new Date().toISOString(),
       }).eq('stripe_subscription_id', subscription.id)
       break
