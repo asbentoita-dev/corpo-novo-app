@@ -1,7 +1,8 @@
 'use client'
-import { useState } from 'react'
 import { CheckCircle, Star, Zap } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+
+const KIWIFY_MENSAL = 'https://kiwify.app/ynF6s1O'
+const KIWIFY_ANUAL = 'https://kiwify.app/ynF6s1O' // substitua pelo link do plano anual
 
 const beneficios = [
   'Acompanhamento diário de peso e medidas',
@@ -15,28 +16,6 @@ const beneficios = [
 ]
 
 export default function Planos() {
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
-  const router = useRouter()
-
-  async function assinar(plano: 'mensal' | 'anual') {
-    setLoadingPlan(plano)
-    const priceId = plano === 'mensal'
-      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY
-      : process.env.NEXT_PUBLIC_STRIPE_PRICE_ANNUAL
-
-    const res = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ priceId }),
-    })
-
-    if (res.status === 401) { router.push('/login'); return }
-
-    const { url } = await res.json()
-    if (url) window.location.href = url
-    else setLoadingPlan(null)
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 px-4 py-16">
       <div className="max-w-2xl mx-auto">
@@ -56,10 +35,10 @@ export default function Planos() {
               <span className="text-gray-400 text-sm">/mês</span>
             </div>
             <p className="text-emerald-600 text-sm font-semibold mb-6">menos de R$ 1 por dia</p>
-            <button onClick={() => assinar('mensal')} disabled={loadingPlan !== null}
-              className="w-full border-2 border-emerald-500 text-emerald-600 font-bold py-3 rounded-2xl hover:bg-emerald-50 transition-colors disabled:opacity-50">
-              {loadingPlan === 'mensal' ? 'Redirecionando...' : 'Começar Grátis'}
-            </button>
+            <a href={KIWIFY_MENSAL} target="_blank" rel="noopener noreferrer"
+              className="block w-full text-center border-2 border-emerald-500 text-emerald-600 font-bold py-3 rounded-2xl hover:bg-emerald-50 transition-colors">
+              Começar Grátis
+            </a>
           </div>
 
           {/* Anual */}
@@ -76,10 +55,10 @@ export default function Planos() {
             <div className="bg-yellow-400 text-yellow-900 text-xs font-black px-3 py-1 rounded-full inline-flex items-center gap-1 mb-6">
               <Zap size={11} fill="currentColor" /> ECONOMIZE 45%
             </div>
-            <button onClick={() => assinar('anual')} disabled={loadingPlan !== null}
-              className="w-full bg-white text-emerald-700 font-black py-3 rounded-2xl hover:bg-emerald-50 transition-colors disabled:opacity-50">
-              {loadingPlan === 'anual' ? 'Redirecionando...' : 'Quero Economizar 45%'}
-            </button>
+            <a href={KIWIFY_ANUAL} target="_blank" rel="noopener noreferrer"
+              className="block w-full text-center bg-white text-emerald-700 font-black py-3 rounded-2xl hover:bg-emerald-50 transition-colors">
+              Quero Economizar 45%
+            </a>
           </div>
         </div>
 
@@ -97,7 +76,7 @@ export default function Planos() {
         </div>
 
         <p className="text-center text-xs text-gray-400">
-          ✓ Cancele quando quiser &nbsp;·&nbsp; ✓ Sem burocracia &nbsp;·&nbsp; ✓ Pagamento seguro via Stripe<br />
+          ✓ Cancele quando quiser &nbsp;·&nbsp; ✓ Sem burocracia &nbsp;·&nbsp; ✓ Pagamento seguro via Kiwify<br />
           ©2025 ASBento · Corpo Novo em 21 Dias
         </p>
       </div>

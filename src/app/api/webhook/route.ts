@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
-import Stripe from 'stripe'
+import { createHmac } from 'crypto'
 
 function getSupabaseAdmin() {
   return createClient(
@@ -10,56 +9,88 @@ function getSupabaseAdmin() {
   )
 }
 
+function verificarAssinatura(body: string, signature: string, secret: string): boolean {
+  const hmac = createHmac('sha1', secret)
+  hmac.update(body)
+  const expected = hmac.digest('hex')
+  return signature === expected
+}
+
 export async function POST(req: NextRequest) {
   const supabaseAdmin = getSupabaseAdmin()
   const body = await req.text()
-  const sig = req.headers.get('stripe-signature')!
+  const signature = req.headers.get('x-kiwify-signature') || ''
 
-  let event: Stripe.Event
-  try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
-  } catch {
-    return NextResponse.json({ error: 'Webhook inválido' }, { status: 400 })
+  const secret = process.env.KIWIFY_WEBHOOK_SECRET
+  if (secret) {
+    const valido = verificarAssinatura(body, signature, secret)
+    if (!valido) {
+      return NextResponse.json({ error: 'Assinatura inválida' }, { status: 400 })
+    }
   }
 
-  const session = event.data.object as Stripe.Checkout.Session
-  const subscription = event.data.object as Stripe.Subscription
+  let payload: Record<string, unknown>
+  try {
+    payload = JSON.parse(body)
+  } catch {
+    return NextResponse.json({ error: 'Payload inválido' }, { status: 400 })
+  }
 
-  switch (event.type) {
-    case 'checkout.session.completed': {
-      const sub = await stripe.subscriptions.retrieve(session.subscription as string)
-      const userId = session.metadata?.user_id
-      if (!userId) break
+  const evento = payload.webhook_event_type as string
+  const order = payload.order as Record<string, unknown> | undefined
+  const subscription = payload.Subscription as Record<string, unknown> | undefined
 
+  const customerId = (payload.Customer as Record<string, unknown>)?.id as string | undefined
+  const customerEmail = (payload.Customer as Record<string, unknown>)?.email as string | undefined
+
+  // Identifica o user pelo email
+  let userId: string | null = null
+  if (customerEmail) {
+    const { data } = await supabaseAdmin.auth.admin.listUsers()
+    const user = data?.users?.find(u => u.email === customerEmail)
+    if (user) userId = user.id
+  }
+
+  if (!userId) {
+    // Não encontrou usuário — registra mas não falha
+    console.warn('[kiwify webhook] usuário não encontrado para email:', customerEmail)
+    return NextResponse.json({ received: true })
+  }
+
+  switch (evento) {
+    case 'order_approved': {
+      const plano = (order?.product_id === process.env.KIWIFY_PRODUCT_ANNUAL) ? 'anual' : 'mensal'
       await supabaseAdmin.from('assinaturas').upsert({
         user_id: userId,
-        stripe_customer_id: session.customer as string,
-        stripe_subscription_id: sub.id,
-        plano: sub.items.data[0].price.recurring?.interval === 'year' ? 'anual' : 'mensal',
-        status: sub.status,
-        trial_fim: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
-        proximo_pagamento: (sub as unknown as { current_period_end?: number }).current_period_end ? new Date(((sub as unknown as { current_period_end: number }).current_period_end) * 1000).toISOString() : null,
+        kiwify_order_id: order?.id,
+        kiwify_subscription_id: subscription?.id,
+        plano,
+        status: 'ativo',
         atualizado_em: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       break
     }
 
-    case 'customer.subscription.updated': {
+    case 'subscription_status': {
+      const subStatus = subscription?.status as string
+      const status = subStatus === 'active' ? 'ativo'
+        : subStatus === 'cancelled' ? 'cancelado'
+        : subStatus === 'suspended' ? 'suspenso'
+        : 'inativo'
+
       await supabaseAdmin.from('assinaturas').update({
-        status: subscription.status,
-        plano: subscription.items.data[0].price.recurring?.interval === 'year' ? 'anual' : 'mensal',
-        trial_fim: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
-        proximo_pagamento: (subscription as unknown as { current_period_end?: number }).current_period_end ? new Date(((subscription as unknown as { current_period_end: number }).current_period_end) * 1000).toISOString() : null,
+        status,
         atualizado_em: new Date().toISOString(),
-      }).eq('stripe_subscription_id', subscription.id)
+      }).eq('kiwify_subscription_id', subscription?.id)
       break
     }
 
-    case 'customer.subscription.deleted': {
+    case 'order_refunded':
+    case 'subscription_cancelled': {
       await supabaseAdmin.from('assinaturas').update({
         status: 'cancelado',
         atualizado_em: new Date().toISOString(),
-      }).eq('stripe_subscription_id', subscription.id)
+      }).eq('user_id', userId)
       break
     }
   }
