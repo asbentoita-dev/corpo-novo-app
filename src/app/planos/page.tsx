@@ -1,7 +1,7 @@
 'use client'
 import { CheckCircle, Star, Zap } from 'lucide-react'
 
-const KIWIFY_MENSAL = 'https://pay.kiwify.com.br/iamPPSK'
+const KIWIFY_MENSAL = 'https://pay.kiwify.com.br/6exL8f1'
 const KIWIFY_ANUAL = 'https://pay.kiwify.com.br/iamPPSK'
 
 const beneficios = [
